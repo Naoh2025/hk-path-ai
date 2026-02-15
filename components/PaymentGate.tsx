@@ -49,7 +49,7 @@ export const PaymentGate: React.FC<Props> = ({ price, onSuccess, onCancel }) => 
               </div>
               <div className="flex justify-between items-center mb-4">
                 <span className="text-slate-500 text-sm font-medium">服务类型</span>
-                <span className="font-bold text-blue-600 text-sm">AI 专家双重审核</span>
+                <span className="font-bold text-blue-600 text-sm">AI专家审核</span>
               </div>
               <div className="h-[1px] bg-slate-200 w-full my-4"></div>
               <div className="flex justify-between items-end">
