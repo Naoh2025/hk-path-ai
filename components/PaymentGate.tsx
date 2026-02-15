@@ -17,7 +17,7 @@ export const PaymentGate: React.FC<Props> = ({ price, onSuccess, onCancel }) => 
       // 2. 延遲 800ms 讓用戶看到加載動畫，然後跳轉
       setTimeout(() => {
         // 請將下方網址替換成你的真實 Stripe 連結
-        window.location.href = "https://buy.stripe.com/7sYeVedi1gux9nsccWbEA03";
+        window.location.href = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK || "https://buy.stripe.com/8x2eV68jX0VNeNobeM2ZO00";
       }, 800);
     } catch (error) {
       console.error("支付啟動失敗:", error);
