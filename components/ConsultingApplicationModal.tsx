@@ -40,7 +40,6 @@ export const ConsultingApplicationModal: React.FC<Props> = ({ isOpen, onClose, h
   ];
 
   const handleCopyWeChat = () => {
-    // 兼容性較強的複製方法
     const textToCopy = "HK_Path_Expert";
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopied(true);
@@ -54,25 +53,29 @@ export const ConsultingApplicationModal: React.FC<Props> = ({ isOpen, onClose, h
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+    // 修正點 1: 外層增加 items-start (手機端頂部對齊) 並允許滾動
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+      
+      {/* 修正點 2: 增加 my-auto 確保在 PC 端居中，手機端能正常滑動 */}
+      <div className="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 my-auto max-h-[95vh] flex flex-col">
         
         {/* 背景裝飾 */}
         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
           <span className="text-8xl font-black">HK</span>
         </div>
 
-        <div className="p-8 md:p-12">
+        {/* 修正點 3: 內部內容區域增加滾動支持，防止按鈕被蓋住 */}
+        <div className="p-8 md:p-12 overflow-y-auto custom-scrollbar">
           <div className="flex justify-between items-start mb-10">
             <div className="space-y-1">
               <h3 className="text-3xl font-black text-slate-900">
                 {view === 'steps' ? '申請預約陪跑' : '掃碼預約面談'}
               </h3>
-              <p className="text-slate-500 font-medium">
+              <p className="text-slate-500 font-medium text-sm md:text-base">
                 {view === 'steps' ? '系統 4：陪伴式策略落地服務申請路徑' : '請長按下方二維碼，添加專家顧問微信'}
               </p>
             </div>
-            <button onClick={handleClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+            <button onClick={handleClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 sticky top-0 bg-white/80 backdrop-blur-md z-30">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -94,7 +97,7 @@ export const ConsultingApplicationModal: React.FC<Props> = ({ isOpen, onClose, h
                 </p>
               </div>
 
-              <div className="space-y-6 relative">
+              <div className="space-y-6 relative mb-4">
                 <div className="absolute left-[19px] top-4 bottom-4 w-[2px] bg-slate-100"></div>
                 {steps.map((step, index) => (
                   <div key={index} className="flex items-start space-x-6 relative z-10">
@@ -117,7 +120,7 @@ export const ConsultingApplicationModal: React.FC<Props> = ({ isOpen, onClose, h
                 ))}
               </div>
 
-              <div className="mt-12 flex flex-col md:flex-row gap-4">
+              <div className="mt-8">
                 <button 
                   onClick={() => {
                     if (hasRoadmap) {
@@ -127,7 +130,7 @@ export const ConsultingApplicationModal: React.FC<Props> = ({ isOpen, onClose, h
                       document.getElementById('assessment-anchor')?.scrollIntoView({ behavior: 'smooth' });
                     }
                   }}
-                  className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-blue-600 transition-all active:scale-95 shadow-xl shadow-slate-200"
+                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-blue-600 transition-all active:scale-95 shadow-xl shadow-slate-200"
                 >
                   {hasRoadmap ? '立即預約面談' : '先去完成 AI 評估'}
                 </button>
@@ -136,61 +139,50 @@ export const ConsultingApplicationModal: React.FC<Props> = ({ isOpen, onClose, h
           ) : (
             <div className="animate-in fade-in zoom-in duration-500 flex flex-col items-center">
               
-              {/* 真實二維碼展示區域 - 強化識別設計 */}
-              <div className="relative p-4 bg-slate-50 rounded-[3rem] shadow-inner border border-slate-100 mb-8">
-                <div className="w-64 h-64 relative bg-white rounded-[2rem] p-4 shadow-sm flex items-center justify-center overflow-hidden">
-                  {/* 核心圖片：確保為 img 標籤且在頂層 */}
+              <div className="relative p-4 bg-slate-50 rounded-[3rem] shadow-inner border border-slate-100 mb-8 shrink-0">
+                <div className="w-48 h-48 md:w-64 md:h-64 relative bg-white rounded-[2rem] p-4 shadow-sm flex items-center justify-center overflow-hidden">
                   <img 
                     src="/wechat-qr.png" 
                     alt="Expert Consultation QR Code" 
                     className="w-full h-full object-contain relative z-10"
-                    style={{ WebkitTouchCallout: 'default' }} // 確保 iOS 下長按菜單彈出
+                    style={{ WebkitTouchCallout: 'default' }}
                   />
-                  
-                  {/* 動態掃描線 - 放在圖片下方或設為 pointer-events-none 以免擋住長按 */}
                   <div className="absolute top-0 left-0 right-0 h-1 bg-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.6)] animate-scan-slow pointer-events-none z-20"></div>
                 </div>
-                
-                {/* 裝飾性框架 */}
+                {/* 框架裝飾 */}
                 <div className="absolute top-6 left-6 w-4 h-4 border-t-2 border-l-2 border-blue-400 rounded-tl-lg pointer-events-none"></div>
                 <div className="absolute top-6 right-6 w-4 h-4 border-t-2 border-r-2 border-blue-400 rounded-tr-lg pointer-events-none"></div>
                 <div className="absolute bottom-6 left-6 w-4 h-4 border-b-2 border-l-2 border-blue-400 rounded-bl-lg pointer-events-none"></div>
                 <div className="absolute bottom-6 right-6 w-4 h-4 border-b-2 border-r-2 border-blue-400 rounded-br-lg pointer-events-none"></div>
               </div>
               
-              <div className="text-center space-y-6 mb-8">
-                <div className="group cursor-pointer" onClick={handleCopyWeChat}>
+              <div className="text-center space-y-6 w-full">
+                <div className="group cursor-pointer mx-auto max-w-[280px]" onClick={handleCopyWeChat}>
                   <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">WeChat ID (點擊複製)</p>
-                  <p className={`text-2xl font-black transition-all px-6 py-2 rounded-2xl border ${copied ? 'text-green-600 bg-green-50 border-green-200 scale-95' : 'text-slate-900 bg-slate-100 border-slate-200 hover:bg-slate-200 active:scale-95'}`}>
+                  <p className={`text-xl md:text-2xl font-black transition-all px-4 py-2 rounded-2xl border ${copied ? 'text-green-600 bg-green-50 border-green-200 scale-95' : 'text-slate-900 bg-slate-100 border-slate-200 hover:bg-slate-200 active:scale-95'}`}>
                     {copied ? '已成功複製！' : 'HK_Path_Expert'}
                     {!copied && <span className="ml-2 text-blue-500 opacity-40 group-hover:opacity-100 transition-opacity text-xl">📋</span>}
                   </p>
                 </div>
 
-                <div className="bg-blue-600/5 px-8 py-5 rounded-[2rem] border border-blue-100 max-w-sm mx-auto relative">
-                  <p className="text-blue-800 text-sm font-black leading-relaxed">
+                <div className="bg-blue-600/5 px-6 py-4 rounded-[1.5rem] border border-blue-100 max-w-sm mx-auto">
+                  <p className="text-blue-800 text-xs md:text-sm font-black leading-relaxed">
                     請務必在申請時備註：<br/>
-                    <span className="text-blue-600 text-lg">「陪跑策略預約 + 您的暱稱」</span>
+                    <span className="text-blue-600 text-base md:text-lg">「陪跑策略預約 + 您的暱稱」</span>
                   </p>
                 </div>
 
-                <p className="text-slate-400 text-xs leading-relaxed max-w-xs mx-auto italic">
+                <p className="text-slate-400 text-[10px] md:text-xs leading-relaxed max-w-xs mx-auto italic pb-4">
                   專家顧問將在 24 小時內通過申請，<br/>
                   並安排 30 分鐘的一對一深度通話。
                 </p>
               </div>
 
-              <div className="w-full flex space-x-4">
-                <button 
-                  onClick={() => setView('steps')}
-                  className="flex-1 py-4 text-slate-500 font-bold text-sm hover:text-slate-900 transition-colors"
-                >
-                  ← 返回流程
+              <div className="w-full flex space-x-4 pt-4 border-t border-slate-50">
+                <button onClick={() => setView('steps')} className="flex-1 py-4 text-slate-500 font-bold text-sm hover:text-slate-900 transition-colors">
+                  ← 返回
                 </button>
-                <button 
-                  onClick={handleClose}
-                  className="flex-[2] py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-xl shadow-slate-200"
-                >
+                <button onClick={handleClose} className="flex-[2] py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all active:scale-95 shadow-xl shadow-slate-200">
                   我知道了
                 </button>
               </div>
@@ -213,6 +205,14 @@ export const ConsultingApplicationModal: React.FC<Props> = ({ isOpen, onClose, h
         @keyframes animate-in {
           from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
+        }
+        /* 優化滾動條外觀 */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 10px;
         }
       `}</style>
     </div>
